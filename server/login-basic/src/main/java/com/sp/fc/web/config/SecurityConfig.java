@@ -16,6 +16,13 @@ import org.springframework.security.core.userdetails.User;
 @EnableGlobalMethodSecurity(prePostEnabled = true)  // 설정되어 있던 ROLE대로 작동하도록 함. 관리자 페이지 접근 불가
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final CustomAuthDetails customAuthDetails;
+
+    // 정보를 얻어올 수 있도록 외부에서 주입
+    public SecurityConfig(CustomAuthDetails customAuthDetails) {
+        this.customAuthDetails = customAuthDetails;
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
@@ -56,6 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                 .permitAll()
                                 .defaultSuccessUrl("/", false)
                                 .failureUrl("/login-error")
+                                .authenticationDetailsSource(customAuthDetails)
                 )
                 .logout(logout->logout.logoutSuccessUrl("/"))   // 로그아웃해도 메인페이지에 남아 있음
                 .exceptionHandling(exception->exception.accessDeniedPage("/access-denied")) // 에러 발생시 접근 권한 거부 페이지 이동
